@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
-import type { LabDocument } from "../../../shared/document";
-import { trace } from "../lib/trace";
-export function useOptics(doc: LabDocument) {
+import { useState } from "react";
+import type { TraceResult } from "../../../shared/document";
+
+/**
+ * 光路显示开关。追迹结果由调用方计算一次并传入，避免同一帧在画布、
+ * 接收屏与任务面板里各算一遍。
+ */
+export function useOptics(result: TraceResult) {
   const [visible, setVisible] = useState(true);
   const [normals, setNormals] = useState(false);
-  const result = useMemo(() => trace(doc), [doc]);
   return { result, visible, setVisible, normals, setNormals };
 }

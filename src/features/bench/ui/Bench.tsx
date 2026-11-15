@@ -10,6 +10,7 @@ export function Bench({
   onUpdate,
   children,
   grid,
+  readOnly = false,
 }: {
   doc: LabDocument;
   selected: string | null;
@@ -17,6 +18,7 @@ export function Bench({
   onUpdate: (id: string, patch: Partial<Element>) => void;
   children: ReactNode;
   grid: boolean;
+  readOnly?: boolean;
 }) {
   const svg = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<{
@@ -41,6 +43,10 @@ export function Bench({
       }}
       onPointerUp={() => {
         if (drag) {
+          if (readOnly) {
+            setDrag(null);
+            return;
+          }
           onUpdate(drag.id, {
             x: Math.max(20, Math.min(980, drag.x)),
             y: Math.max(20, Math.min(580, drag.y)),
@@ -88,11 +94,12 @@ export function Bench({
         return (
           <g
             key={e.id}
-            tabIndex={0}
+            tabIndex={readOnly ? -1 : 0}
             role="button"
             aria-label={labels[e.kind] + " " + (i + 1)}
             className="device"
             onKeyDown={(ev) => {
+              if (readOnly) return;
               if (ev.key === "Enter") onSelect(e.id);
               if (ev.key.startsWith("Arrow")) {
                 ev.preventDefault();
@@ -126,8 +133,9 @@ export function Bench({
             }}
             onPointerDown={(ev) => {
               ev.stopPropagation();
-              ev.currentTarget.setPointerCapture(ev.pointerId);
               onSelect(e.id);
+              if (readOnly) return;
+              ev.currentTarget.setPointerCapture(ev.pointerId);
               if (svg.current) {
                 const p = worldPoint(svg.current, ev.clientX, ev.clientY);
                 setDrag({

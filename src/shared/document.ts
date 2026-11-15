@@ -1,3 +1,5 @@
+import type { TimelineDocument } from "./timeline";
+
 export type Kind = "source" | "mirror" | "lens" | "prism" | "screen";
 export interface Point {
   x: number;
@@ -18,6 +20,11 @@ export interface Element extends Point {
 export interface LabDocument {
   version: 1;
   items: Element[];
+  /**
+   * 参数时间轴。与布局放在同一文档中，这样撤销/重做/保存会一起恢复，
+   * 但播放时由 documentAt 派生预览文档，**绝不**回写这里。
+   */
+  timeline?: TimelineDocument;
 }
 export interface Segment {
   from: Point;
